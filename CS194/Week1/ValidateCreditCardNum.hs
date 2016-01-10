@@ -58,11 +58,14 @@ sumDigits (x:[]) 	= x
 sumDigits (x:xs)	= x + (sumDigits xs)
 
 -- digitzeList is removing zeroes?
+-- 0's are replaced by empty lists in toDigits
 digitizeList :: [Integer] -> [Integer]
 digitizeList [] 		= []
 digitizeList (x:[])		= toDigits x ++ []
 digitizeList (x:xs)		= toDigits x ++ digitizeList xs
 
+--I get different correct numbers than what's given in the examples.
+--Not sure what to make of that.
 validate :: Integer -> Bool
 validate n 
 	| sumDigits (digitizeList (doubleEveryOtherRev (toDigits n))) `mod` 10 == 0 = True
