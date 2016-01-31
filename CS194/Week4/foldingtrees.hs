@@ -4,14 +4,24 @@ data Tree a = 	Leaf
 			
 
 foldTree :: [a] -> Tree a
+foldTree = foldr balancedPlacement (Leaf)
 
 balancedPlacement :: a -> Tree a -> Tree a
-balancedPlacement x Leaf = Node 0 Leaf x Leaf
-balancedPlacement x (Node h left@(Node lh _ _ _) value right@(Node rh _ _ _))
-			| lh < rh && countChildren	= Node h+1 (balancedPlacement x left) value right
-			| otherwise = Node h+1 left value (balancedPlacement x right)
+balancedPlacement x (Leaf) = Node 0 (Leaf) x (Leaf)
+balancedPlacement x current@(Node h left@(Node lh _ _ _) value right@(Node rh _ _ _))
+			| lh < rh && (countChildren current) >= (maxChildren current)	= Node (h+1) (balancedPlacement x left) value right
+			| lh < rh 														= Node h (balancedPlacement x left) value right 
+			| (countChildren current) >= (maxChildren current)				= Node (h+1) left value (balancedPlacement x right)
+			| otherwise														= Node h left value (balancedPlacement x right)
+balancedPlacement x (Node h (Leaf) value (Leaf))= Node (h+1) (Node 0 (Leaf) x (Leaf)) value (Leaf)
+balancedPlacement x (Node h (Leaf) value right)	= Node h (Node 0 (Leaf) x (Leaf)) value right
+balancedPlacement x (Node h left value (Leaf))	= Node h left value (Node 0 (Leaf) x (Leaf))
+
 --also have the case x (Node h Leaf value right)
 --and the reverse 	 x (Node h left value Leaf)
+--these latter two cases, in particular the first one, takes care of
+--Node h Leaf value Leaf case since I'm not specifying a constructor
+--on the "right" name
 
 countNodes :: Tree a -> Integer
 countNodes Leaf			= 0
