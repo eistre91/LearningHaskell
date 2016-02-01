@@ -10,9 +10,6 @@ cartProd xs ys = [(x,y) | x <- xs, y <- ys]
 findRemovableNumbers :: Integer -> [Integer]
 findRemovableNumbers n = map (\(a,b) -> (a + b + 2*a*b)) . filter (\(a,b) -> (a + b + 2*a*b) <= n) . filter (\(a,b) -> a <= b) . cartProd [1..n] $ [1..n]
 
---filter (\x [a] -> not elem x [a]) [1..n] 
---map (\(a,b) -> (a + b + 2*a*b)) $ findRemovablePairs n
-
 keepComplement :: Integer -> [Integer] -> [Integer]
 keepComplement n xs = filter (\x -> not . elem x $ xs) [1..n]
 
