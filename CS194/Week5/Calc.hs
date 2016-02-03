@@ -38,15 +38,15 @@ instance Expr Bool where
 newtype MinMax	= MinMax Integer deriving (Eq, Show)
 newtype Mod7	= Mod7 Integer deriving (Eq, Show)
 
-instance Expr (MinMax Integer) where
-	lit (MinMax x)				= x
-	add (MinMax x) (MinMax y)	= max x y
-	mul (MinMax x) (MinMax y) 	= min x y
+instance Expr MinMax where
+	lit x						= MinMax x
+	add (MinMax x) (MinMax y)	= MinMax (max x y)
+	mul (MinMax x) (MinMax y) 	= MinMax (min x y)
 	
 instance Expr Mod7 where
-	lit (Mod7 x)			= x `mod` 7
-	add (Mod7 x) (Mod7 y) 	= (x + y) `mod` 7
-	mul (Mod7 x) (Mod7 y)	= (x * y) `mod` 7
+	lit x					= Mod7 (x `mod` 7)
+	add (Mod7 x) (Mod7 y) 	= Mod7 ((x + y) `mod` 7)
+	mul (Mod7 x) (Mod7 y)	= Mod7 ((x * y) `mod` 7)
 	
 testExp :: Expr a => Maybe a
 testExp = parseExp lit add mul "(3*-4) + 5"
