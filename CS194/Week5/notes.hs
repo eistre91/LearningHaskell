@@ -7,8 +7,8 @@ instance Listable Integer where
 --instance Num a => Listable a where
 --  toList x = [x]
   
---instance (Listable a, Listable b) => Listable (a,b) where
---  toList (x,y) = toList x ++ toList y
+instance (Listable a, Listable b) => Listable (a,b) where
+  toList (x,y) = toList x ++ toList y
   
-instance Listable (a,b) where
-  toList (x,y) = [toInteger 1]
+--instance Listable (a,b) where
+--  toList (x,y) = [toInteger 1]

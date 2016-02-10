@@ -1,8 +1,5 @@
-{-# LANGUAGE TypeSynonymInstances #-}
-
 import ExprT
 import Parser
-import StackVM
 
 eval :: ExprT -> Integer
 eval (Lit i) = i
@@ -58,17 +55,3 @@ testBool     = testExp :: Maybe Bool
 testMM       = testExp :: Maybe MinMax
 testSat      = testExp :: Maybe Mod7
 
---stackVM exp == Right [IVal exp]
-instance Expr Program where
-	lit x		= [(PushI x)]
-	add x y		= [x, y, Add]
-	mul x y		= [x, y, Mul]
-
-compile :: String -> Maybe Program
-compile = parseExp lit add mul
-
---"3+5" should give back add (lit 3) (lit 5)
-	--this part comes from parseExp
---which should give back [PushI 3, PushI5, Add]
-	--this comes from getting the result from parseExp
-	--and typing the resulting Expr as Program
