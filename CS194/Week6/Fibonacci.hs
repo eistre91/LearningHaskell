@@ -35,14 +35,32 @@ streamToList :: Stream a -> [a]
 streamToList (C x y) = x:(streamToList y)
 
 instance Show a => Show (Stream a) where
-	show x = show (take 20 (streamToList x))
+	show x = show . take 20 . streamToList $ x
 
 streamRepeat :: a -> Stream a	
+streamRepeat x = C x (streamRepeat x)
 
 streamMap :: (a -> b) -> Stream a -> Stream b
+streamMap f (C x y) = C (f x) (streamMap f y)
 
 streamFromSeed :: (a -> a) -> a -> Stream a
+streamFromSeed f seed = C (seed) (streamFromSeed f (f seed))
 	
+nats :: Stream Integer
+nats = streamFromSeed (\x -> x + 1) 0
+
+ruler :: Stream Integer	
+ruler = streamMap determinePowerOfTwo nats
+--works in theory but it never prints anything
+--not sure how to get partial results put out
+
+determinePowerOfTwo :: Integer -> Integer
+determinePowerOfTwo n = if n `mod` 2 == 0 then (1 + determinePowerOfTwo (n `div` 2)) else 0
+
+interleaveStreams :: Stream a -> Stream a -> Stream a
+interleaveStreams (C first tail1) (C second tail2) = C first (C second (interleaveStreams tail1 tail2))
+--can't quite figure out the interleave solution yet
+
 --st1 :: Stream Int
 --st1 = C 0 (Stream 0)
 --Note this doesn't actually work.
