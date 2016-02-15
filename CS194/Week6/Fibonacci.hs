@@ -51,7 +51,7 @@ nats = streamFromSeed (\x -> x + 1) 0
 
 ruler :: Stream Integer	
 ruler = streamMap determinePowerOfTwo nats
---works in theory but it never prints anything
+--works in theory but it never prints anything because infinite
 --not sure how to get partial results put out
 
 determinePowerOfTwo :: Integer -> Integer
