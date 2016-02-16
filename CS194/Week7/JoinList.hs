@@ -51,11 +51,17 @@ jlToList (Append _ l1 l2)= jlToList l1 ++ jlToList l2
 --index in the list it represents
 indexJ :: (Sized b, Monoid b) => Int -> JoinList b a -> Maybe a
 indexJ _ (Empty) 		= Nothing
-indexJ _ (Single _ a) 	= Just a
-indexJ n (Append m l1 l2) 	 
-				| n < subSize	= indexJ n l1 
-				| otherwise		= indexJ (n - subSize) l2
-				where subSize = getSize . size . tag $ l1
+indexJ n l1@(Single m a) 	
+				| n < 0 || n >= m 	= Nothing
+				| otherwise			= Just a
+				where m = getSize . size . tag $ l1
+indexJ n l0@(Append m l1 l2) 
+				| n < 0 || n >= m 	= Nothing
+				| n < subSize		= indexJ n l1 
+				| otherwise			= indexJ (n - subSize) l2
+				where 
+					subSize = getSize . size . tag $ l1
+					m = getSize . size . tag $ l0
 
 test :: JoinList Size Char
 test = Append (Size 4) (Append (Size 3) (Single (Size 1) 'y')
