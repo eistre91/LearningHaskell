@@ -8,6 +8,7 @@
 --jlbToList (Append l1 l2) = jlbToList l1 ++ jlbToList l2
 
 import Sized
+import Scrabble
 
 data JoinList m a = Empty
 					| Single m a
@@ -118,3 +119,7 @@ test :: JoinList Size Char
 test = Append (Size 4) (Append (Size 3) (Single (Size 1) 'y')
 		(Append (Size 2) (Single (Size 1) 'e') (Single (Size 1) 'a')))
 		(Single (Size 1) 'h')
+		
+scoreLine :: String -> JoinList Score String
+scoreLine s = (Single (scoreString s) s) 
+
