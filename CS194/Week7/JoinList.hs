@@ -63,6 +63,57 @@ indexJ n l0@(Append m l1 l2)
 					subSize = getSize . size . tag $ l1
 					m = getSize . size . tag $ l0
 
+--creates a new tree
+--also has to recompute sizes 
+	--use +++ from before?
+--given an n, indexJ into n (which is the n+1th element)
+--keep that element and everything after
+
+--current implementation loses type information on b
+--but that seems to be the nature of the implementation of the Size type
+--this doesn't work by the type signature
+
+--size b loses type information too
+--so I need to know what's the equivalent of (Size 1) in b
+--seems like I need to find the tag of the singles of b and use that
+getJoinListAt :: (Sized b, Monoid b) => Int -> JoinList b a -> JoinList b a
+getJoinListAt _ (Empty) 		= (Empty)
+getJoinListAt n l1@(Single m a) 	
+				| n < 0 || n >= m 	= (Empty)
+				| otherwise			= l1
+				where m = getSize . size . tag $ l1
+getJoinListAt n l0@(Append m l1 l2) 
+				| n < 0 || n >= m 	= (Empty)
+				| n < subSize		= getJoinListAt n l1 
+				| otherwise			= getJoinListAt (n - subSize) l2
+				where 
+					subSize = getSize . size . tag $ l1
+					m = getSize . size . tag $ l0
+
+--this only computes unit size
+tagAt :: (Sized m, Monoid m) => Int -> JoinList m a -> m
+tagAt n l1 = tag . getJoinListAt n $ l1
+
+dropJ :: (Sized b, Monoid b) => Int -> JoinList b a -> JoinList b a
+dropJ n l1 = case value of
+				Nothing		-> Empty
+				Just a		-> (Single (unitSize) a) +++ dropJ (n+1) l1	
+			 where 
+				unitSize = tagAt 0 l1
+				value = indexJ n l1
+--basically the reverse of dropJ
+--start at keeping n-1 down to 0				
+takeJ :: (Sized b, Monoid b) => Int -> JoinList b a -> JoinList b a
+takeJ n l1 = case value of
+				Nothing		-> Empty
+				Just a		-> takeJ (n-1) l1 +++ (Single (unitSize) a)
+			 where 
+				unitSize = tagAt 0 l1
+				value = indexJ (n-1) l1
+--now that I've gone backwards and written getJoinListAt...it makes 
+--more sense to use that instead of reconstructing a joinlist object
+--where I construct the single
+
 test :: JoinList Size Char
 test = Append (Size 4) (Append (Size 3) (Single (Size 1) 'y')
 		(Append (Size 2) (Single (Size 1) 'e') (Single (Size 1) 'a')))
