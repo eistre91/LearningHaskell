@@ -1,3 +1,5 @@
+{-# LANGUAGE TypeSynonymInstances, FlexibleInstances #-}
+
 --data JoinListBasic a = Empty
 --						| Single a
 --						| Append (JoinListBasic a) (JoinListBasic a)
@@ -9,6 +11,7 @@
 
 import Sized
 import Scrabble
+import Buffer
 
 data JoinList m a = Empty
 					| Single m a
@@ -43,6 +46,8 @@ jlToList :: JoinList m a -> [a]
 jlToList Empty			 = []
 jlToList (Single _ a)	 = [a]
 jlToList (Append _ l1 l2)= jlToList l1 ++ jlToList l2
+
+--listToJl :: [a] -> JoinList m a
 
 --finish add from document
 --should have that (indexJ i jl) == (jlToList jl !!? i)
@@ -123,3 +128,28 @@ test = Append (Size 4) (Append (Size 3) (Single (Size 1) 'y')
 scoreLine :: String -> JoinList Score String
 scoreLine s = (Single (scoreString s) s) 
 
+instance Buffer (JoinList (Score, Size) String) where
+  -- | Convert a buffer to a String.
+  toString = unwords . jlToList 
+
+  -- | Create a buffer from a String.
+  fromString s  = foldl (\acc t -> acc +++ (Single (tag . scoreLine $ t, Size 1) t)) (Empty) (lines s) 
+
+  -- | Extract the nth line (0-indexed) from a buffer.  Return Nothing
+  -- for out-of-bounds indices.
+  line = indexJ 
+
+  -- | @replaceLine n ln buf@ returns a modified version of @buf@,
+  --   with the @n@th line replaced by @ln@.  If the index is
+  --   out-of-bounds, the buffer should be returned unmodified.
+  replaceLine n s l1 = (takeJ (n) l1) +++ (Single (tag . scoreLine $ s, Size 1) s) +++ (dropJ (n+1) l1)
+
+  -- | Compute the number of lines in the buffer.
+  numLines = getSize . snd . tag
+
+  -- | Compute the value of the buffer, i.e. the amount someone would
+  --   be paid for publishing the contents of the buffer.
+  value = getScore . fst . tag
+  
+testBuffer :: JoinList (Score, Size) String
+testBuffer = fromString "asdf \n word \n another"
